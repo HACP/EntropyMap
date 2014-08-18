@@ -92,7 +92,7 @@ def gEntropy(TS, x, L, alpha):
         p = TS[1][x - ii]*TS[1][x - ii]/NN
         if p > 0:
             ENT = ENT + p*pow(-log(p), alpha)
-    return ENT/log(L)
+    return ENT/pow(log(L),alpha)
 
 
 def gEntropyMap(TS, L):
