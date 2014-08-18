@@ -6,14 +6,14 @@ import pylab
 import numpy as np
 import matplotlib.pyplot as plt
 import time
-import date
+import datetime
 
 #Function: ConvertDate(date)...Convert date to unix time
 #Input: Date in format dd-MONTH-yy (MONTH in words)
 #Output: Unixtime
 
 def ConvertDate(date):
-    return time.mktime(datetime.datetime.strptime(s1, "%d-%b-%Y").timetuple())
+    return time.mktime(datetime.datetime.strptime(date, "%d-%b-%y").timetuple())
 
 
 #Function: LoadData(dataset)...Data Processing and formatting
@@ -37,6 +37,6 @@ def LoadData(dataset):
       T.append(ConvertDate(ls[0]))
       V.append(float(ls[1]))
       
-return [T,V]
+    return [T,V]
 
 
