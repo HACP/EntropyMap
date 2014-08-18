@@ -38,5 +38,45 @@ def LoadData(dataset):
       V.append(float(ls[1]))
       
     return [T,V]
+    
+#Function: Entropy(TS, x, L)...Computation of the entropy associated to point x in a window L 
+#Input: Time Series TS, Position X, Window L
+#Output: Normalized Entropy 
+
+def Entropy(TS, x, L):
+    NN = 0
+    for ii in range(L):
+        NN = NN + TS[1][x - ii]*TS[1][x - ii]
+
+    ENT = 0
+    for jj in range(L):
+        p = TS[1][x - ii]*TS[1][x - ii]/NN
+        if p > 0:
+            ENT = ENT + p*log(p)
+    return -ENT/log(L)
+
+#Function: EntropyMap(TS,L)...Entropy Map associated to a time series and a window L
+#Input: Time Series TS, Window L
+#Output: List of three vectors T, V, E 
+
+def EntropyMap(TS, L):
+    E = []
+    for ii in range(len(TS[0])):
+        E.append(Entropy(TS, ii, L))
+    TS.append(E)
+    return TS
+
+#Function: PlotEntropyMap(TS, L)... Plot the entropy map, color and radius measure of entropy
+#X axis is the T value, Y axis is V and the color and radius are proportional to the entropy.
+
+def PlotEntropyMap(TS,L):
+    TSM = EntropyMap(TS, 100)
+
+    X = np.array(TSM[0])
+    Y = np.array(TSM[1])
+    Z = np.array(TSM[2])
+
+    plt.scatter(X, Y, s = 10*Z, c = Z)
+    plt.show()
 
 
