@@ -80,3 +80,41 @@ def PlotEntropyMap(TS,L):
     plt.show()
 
 
+#Function: gEntropy(TS, x, L, alpha)... Generalized Entropy E = < -log(p)^a > 
+
+def gEntropy(TS, x, L, alpha):
+    NN = 0
+    for ii in range(L):
+        NN = NN + TS[1][x - ii]*TS[1][x - ii]
+
+    ENT = 0
+    for jj in range(L):
+        p = TS[1][x - ii]*TS[1][x - ii]/NN
+        if p > 0:
+            ENT = ENT + p*pow(-log(p), alpha)
+    return ENT/log(L)
+
+
+def gEntropyMap(TS, L):
+    E = []
+    A = []
+    T = []
+    for ii in range(len(TS[0])):
+        for kk in range(10):
+            alpha = -2. + (4./10)*kk
+            E.append(gEntropy(TS, ii, L, alpha))
+            A.append(alpha)
+            T.append(TS[0][ii])
+
+    return [T, A, E]
+
+
+def gPlotEntropyMap(TS,L):
+    TSM = gEntropyMap(TS, 100)
+
+    X = np.array(TSM[0])
+    Y = np.array(TSM[1])
+    Z = np.array(TSM[2])
+
+    plt.scatter(X, Y, s = Z*10, c = Z)
+    plt.show()
