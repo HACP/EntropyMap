@@ -118,3 +118,43 @@ def gPlotEntropyMap(TS,L):
 
     plt.scatter(X, Y, s = Z*10, c = Z)
     plt.show()
+
+#Function PlotEntropyMapDate(dataset, L) ... Plots the filtered entropy with the dates
+#Input: Dataset as provided by Yahoo, in format dd-MONTH-yy and window L
+#Output: Entropy Map showing highest entropy values.
+    
+def PlotEntropyMapDate(dataset,L):
+
+    f = open(dataset,'r')
+    f.readline()
+
+    data = []
+    dataL = []
+    counter = 0
+    for lines in f:
+        ls = lines.split(',')
+        data.append((DT.datetime.strptime(ls[0], "%d-%b-%y"),float(ls[-1])))
+        if counter%1000 == 0:
+            dataL.append((DT.datetime.strptime(ls[0], "%d-%b-%y"),float(ls[-1])))
+        counter = counter + 1
+
+    x = [date2num(date) for (date, value) in data]
+    y = [value for (date, value) in data]
+    z = [EntropyFilter(Entropy([x,y], ii, L)) for ii in range(len(x))]
+
+    xL = [date2num(date) for (date, value) in dataL]
+    yL = [value for (date, value) in dataL]
+
+    fig = plt.figure()
+
+    graph = fig.add_subplot(111)
+    graph.set_xticks(xL)
+    graph.set_xticklabels([date.strftime("%d-%b-%y") for (date, value) in dataL])
+
+    X = np.array(x)
+    Y = np.array(y)
+    Z = np.array(z)
+
+    plt.scatter(X, Y, s = Z*10, c = Z)
+    plt.show()
+
