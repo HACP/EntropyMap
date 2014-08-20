@@ -5,8 +5,10 @@ import math
 import pylab
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.dates as md
 import time
-import datetime
+import datetime as DT
+from matplotlib.dates import date2num
 
 #Function: ConvertDate(date)...Convert date to unix time
 #Input: Date in format dd-MONTH-yy (MONTH in words)
@@ -29,8 +31,8 @@ def LoadData(dataset):
     f = open(dataset,'r')
     f.readline()
     
-    T = array('d')
-    V = array('d')
+    T = []
+    V = []
     
     for line in f:
       ls = line.split(' ')
@@ -38,10 +40,6 @@ def LoadData(dataset):
       V.append(float(ls[1]))
       
     return [T,V]
-    
-#Function: Entropy(TS, x, L)...Computation of the entropy associated to point x in a window L 
-#Input: Time Series TS, Position X, Window L
-#Output: Normalized Entropy 
 
 def Entropy(TS, x, L):
     NN = 0
@@ -55,33 +53,6 @@ def Entropy(TS, x, L):
             ENT = ENT + p*log(p)
     return -ENT/log(L)
 
-#Function: EntropyMap(TS,L)...Entropy Map associated to a time series and a window L
-#Input: Time Series TS, Window L
-#Output: List of three vectors T, V, E 
-
-def EntropyMap(TS, L):
-    E = []
-    for ii in range(len(TS[0])):
-        E.append(Entropy(TS, ii, L))
-    TS.append(E)
-    return TS
-
-#Function: PlotEntropyMap(TS, L)... Plot the entropy map, color and radius measure of entropy
-#X axis is the T value, Y axis is V and the color and radius are proportional to the entropy.
-
-def PlotEntropyMap(TS,L):
-    TSM = EntropyMap(TS, 100)
-
-    X = np.array(TSM[0])
-    Y = np.array(TSM[1])
-    Z = np.array(TSM[2])
-
-    plt.scatter(X, Y, s = 10*Z, c = Z)
-    plt.show()
-
-
-#Function: gEntropy(TS, x, L, alpha)... Generalized Entropy E = < -log(p)^a > 
-
 def gEntropy(TS, x, L, alpha):
     NN = 0
     for ii in range(L):
@@ -92,8 +63,14 @@ def gEntropy(TS, x, L, alpha):
         p = TS[1][x - ii]*TS[1][x - ii]/NN
         if p > 0:
             ENT = ENT + p*pow(-log(p), alpha)
-    return ENT/pow(log(L),alpha)
+    return ENT/log(L)
 
+def EntropyMap(TS, L):
+    E = []
+    for ii in range(len(TS[0])):
+        E.append(Entropy(TS, ii, L))
+    TS.append(E)
+    return TS
 
 def gEntropyMap(TS, L):
     E = []
@@ -101,13 +78,31 @@ def gEntropyMap(TS, L):
     T = []
     for ii in range(len(TS[0])):
         for kk in range(10):
-            alpha = -2. + (4./10)*kk
+            alpha = -4. + (8./10)*kk
             E.append(gEntropy(TS, ii, L, alpha))
             A.append(alpha)
             T.append(TS[0][ii])
-
+   
     return [T, A, E]
+                     
 
+def PlotEntropyMap(TS,L):
+    TSM = EntropyMap(TS, 100)
+
+    X = np.array(TSM[0])
+    Y = np.array(TSM[1])
+    Z = np.array(TSM[2])
+
+    #plt.subplots_adjust(bottom=0.2)
+    #plt.xticks( rotation=25 )
+    ax=plt.gca()
+    xfmt = md.DateFormatter('%Y-%m-%d')
+    ax.xaxis.set_major_formatter(xfmt)
+
+    #new_X = md.datestr2num(X)
+    #print new_X
+    plt.scatter(X, Y, s = 10*Z, c = Z)
+    plt.show()
 
 def gPlotEntropyMap(TS,L):
     TSM = gEntropyMap(TS, 100)
@@ -119,13 +114,15 @@ def gPlotEntropyMap(TS,L):
     plt.scatter(X, Y, s = Z*10, c = Z)
     plt.show()
 
-#Function PlotEntropyMapDate(dataset, L) ... Plots the filtered entropy with the dates
-#Input: Dataset as provided by Yahoo, in format dd-MONTH-yy and window L
-#Output: Entropy Map showing highest entropy values.
-    
+def EntropyFilter(ENT):
+    if ENT<4.:
+        return .05
+    else:
+        return ENT
+
 def PlotEntropyMapDate(dataset,L):
 
-    f = open(dataset,'r')
+    f = open('aapl.csv','r')
     f.readline()
 
     data = []
@@ -157,4 +154,10 @@ def PlotEntropyMapDate(dataset,L):
 
     plt.scatter(X, Y, s = Z*10, c = Z)
     plt.show()
+
+
+
+
+
+
 
